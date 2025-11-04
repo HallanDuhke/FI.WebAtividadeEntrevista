@@ -20,6 +20,7 @@ namespace FI.AtividadeEntrevista.DAL
 
             parametros.Add(new System.Data.SqlClient.SqlParameter("Nome", cliente.Nome));
             parametros.Add(new System.Data.SqlClient.SqlParameter("Sobrenome", cliente.Sobrenome));
+            parametros.Add(new System.Data.SqlClient.SqlParameter("CPF", cliente.CPF));
             parametros.Add(new System.Data.SqlClient.SqlParameter("Nacionalidade", cliente.Nacionalidade));
             parametros.Add(new System.Data.SqlClient.SqlParameter("CEP", cliente.CEP));
             parametros.Add(new System.Data.SqlClient.SqlParameter("Estado", cliente.Estado));
@@ -99,6 +100,26 @@ namespace FI.AtividadeEntrevista.DAL
             return cli;
         }
 
+        public bool ExisteCPF(string cpf)
+        {
+            var parametros = new List<System.Data.SqlClient.SqlParameter> {
+            new System.Data.SqlClient.SqlParameter("CPF", cpf)
+            };
+
+            var ds = base.Consultar("FI_SP_VerificaCPF", parametros);
+            return ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0;
+        }
+
+        public bool ExisteCPFOutro(string cpf, long id)
+        {
+            var parametros = new List<System.Data.SqlClient.SqlParameter> {
+            new System.Data.SqlClient.SqlParameter("CPF", cpf),
+            new System.Data.SqlClient.SqlParameter("ID", id)
+        };
+            var ds = base.Consultar("FI_SP_VerificaCPFOutroCliente", parametros);
+            return ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0;
+        }
+
         /// <summary>
         /// Inclui um novo cliente
         /// </summary>
@@ -109,6 +130,7 @@ namespace FI.AtividadeEntrevista.DAL
 
             parametros.Add(new System.Data.SqlClient.SqlParameter("Nome", cliente.Nome));
             parametros.Add(new System.Data.SqlClient.SqlParameter("Sobrenome", cliente.Sobrenome));
+            parametros.Add(new System.Data.SqlClient.SqlParameter("CPF", cliente.CPF));
             parametros.Add(new System.Data.SqlClient.SqlParameter("Nacionalidade", cliente.Nacionalidade));
             parametros.Add(new System.Data.SqlClient.SqlParameter("CEP", cliente.CEP));
             parametros.Add(new System.Data.SqlClient.SqlParameter("Estado", cliente.Estado));
