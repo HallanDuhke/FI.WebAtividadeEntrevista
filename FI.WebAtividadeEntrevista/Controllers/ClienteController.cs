@@ -1,16 +1,31 @@
 ﻿using FI.AtividadeEntrevista.BLL;
-using WebAtividadeEntrevista.Models;
+using FI.AtividadeEntrevista.DML;
+using FI.WebAtividadeEntrevista.Models;
+using FI.WebAtividadeEntrevista.Service;
+using FI.WebAtividadeEntrevista.Service.Interface;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
-using FI.AtividadeEntrevista.DML;
+using WebAtividadeEntrevista.Models;
 
-namespace WebAtividadeEntrevista.Controllers
+namespace FI.WebAtividadeEntrevista.Controllers
 {
     public class ClienteController : Controller
     {
+        private readonly IClienteService _service;
+
+        public ClienteController()
+            : this(new ClienteService(new BoCliente()))
+        {
+        }
+
+        public ClienteController(IClienteService service)
+        {
+            _service = service;
+        }
+
         public ActionResult Index()
         {
             return View();
@@ -30,84 +45,59 @@ namespace WebAtividadeEntrevista.Controllers
         [HttpPost]
         public JsonResult Incluir(ClienteModel model)
         {
-            BoCliente bo = new BoCliente();
-            
-            if (!this.ModelState.IsValid)
+            try
             {
-                List<string> erros = (from item in ModelState.Values
-                                      from error in item.Errors
-                                      select error.ErrorMessage).ToList();
-
-                Response.StatusCode = 400;
-                return Json(string.Join(Environment.NewLine, erros));
-            }
-            else
-            {
-                
-                model.Id = bo.Incluir(new Cliente()
-                {                    
-                    CEP = model.CEP,
-                    CPF = model.CPF,
-                    Cidade = model.Cidade,
-                    Email = model.Email,
-                    Estado = model.Estado,
-                    Logradouro = model.Logradouro,
-                    Nacionalidade = model.Nacionalidade,
-                    Nome = model.Nome,
-                    Sobrenome = model.Sobrenome,
-                    Telefone = model.Telefone
+                var criado = _service.Incluir(model);
+                return Json(new
+                {
+                    Result = "OK",
+                    Record = new
+                    {
+                        criado.Id,
+                        criado.CEP,
+                        criado.CPF,
+                        criado.Cidade,
+                        criado.Email,
+                        criado.Estado,
+                        criado.Logradouro,
+                        criado.Nacionalidade,
+                        criado.Nome,
+                        criado.Sobrenome,
+                        criado.Telefone
+                    }
                 });
-
-           
-                return Json("Cadastro efetuado com sucesso");
+            }
+            catch (Exception ex)
+            {
+                Response.StatusCode = 400;
+                return Json(new { Result = "ERROR", Message = ex.Message });
             }
         }
 
         [HttpPost]
         public JsonResult Alterar(ClienteModel model)
         {
-            BoCliente bo = new BoCliente();
-       
-            if (!this.ModelState.IsValid)
+            try
             {
-                List<string> erros = (from item in ModelState.Values
-                                      from error in item.Errors
-                                      select error.ErrorMessage).ToList();
-
-                Response.StatusCode = 400;
-                return Json(string.Join(Environment.NewLine, erros));
+                _service.Alterar(model);
+                return Json(new { Result = "OK" });
             }
-            else
+            catch (Exception ex)
             {
-                bo.Alterar(new Cliente()
-                {
-                    Id = model.Id,
-                    CEP = model.CEP,
-                    CPF = model.CPF,
-                    Cidade = model.Cidade,
-                    Email = model.Email,
-                    Estado = model.Estado,
-                    Logradouro = model.Logradouro,
-                    Nacionalidade = model.Nacionalidade,
-                    Nome = model.Nome,
-                    Sobrenome = model.Sobrenome,
-                    Telefone = model.Telefone
-                });
-                               
-                return Json("Cadastro alterado com sucesso");
+                Response.StatusCode = 400;
+                return Json(new { Result = "ERROR", Message = ex.Message });
             }
         }
 
         [HttpGet]
         public ActionResult Alterar(long id)
         {
-            BoCliente bo = new BoCliente();
-            Cliente cliente = bo.Consultar(id);
-            Models.ClienteModel model = null;
+            var cliente = _service.Consultar(id);
+            ClienteModel model = null;
 
             if (cliente != null)
             {
-                model = new ClienteModel()
+                model = new ClienteModel
                 {
                     Id = cliente.Id,
                     CEP = cliente.CEP,
@@ -121,8 +111,6 @@ namespace WebAtividadeEntrevista.Controllers
                     Sobrenome = cliente.Sobrenome,
                     Telefone = cliente.Telefone
                 };
-
-            
             }
 
             return View(model);
@@ -133,24 +121,46 @@ namespace WebAtividadeEntrevista.Controllers
         {
             try
             {
-                int qtd = 0;
+                int qtd;
                 string campo = string.Empty;
                 string crescente = string.Empty;
-                string[] array = jtSorting.Split(' ');
 
-                if (array.Length > 0)
-                    campo = array[0];
+                if (!string.IsNullOrWhiteSpace(jtSorting))
+                {
+                    var array = jtSorting.Split(' ');
+                    if (array.Length > 0)
+                        campo = array[0];
+                    if (array.Length > 1)
+                        crescente = array[1];
+                }
 
-                if (array.Length > 1)
-                    crescente = array[1];
+                var clientes = _service.Pesquisa(
+                    jtStartIndex,
+                    jtPageSize,
+                    campo,
+                    crescente.Equals("ASC", StringComparison.InvariantCultureIgnoreCase),
+                    out qtd
+                );
 
-                List<Cliente> clientes = new BoCliente().Pesquisa(jtStartIndex, jtPageSize, campo, crescente.Equals("ASC", StringComparison.InvariantCultureIgnoreCase), out qtd);
-
-                //Return result to jTable
                 return Json(new { Result = "OK", Records = clientes, TotalRecordCount = qtd });
             }
             catch (Exception ex)
             {
+                return Json(new { Result = "ERROR", Message = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public JsonResult Excluir(long id)
+        {
+            try
+            {
+                _service.Excluir(id);
+                return Json(new { Result = "OK" });
+            }
+            catch (Exception ex)
+            {
+                Response.StatusCode = 400;
                 return Json(new { Result = "ERROR", Message = ex.Message });
             }
         }
