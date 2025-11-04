@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FI.AtividadeEntrevista.BLL.Validators;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,7 +17,8 @@ namespace FI.AtividadeEntrevista.BLL
         /// <param name="cliente">Objeto de cliente</param>
         public long Incluir(DML.Cliente cliente)
         {
-            ValidarCPF(cliente.CPF);
+            // Normaliza e valida CPF
+            cliente.CPF = ValidarCPF(cliente.CPF);
             if (_dao.ExisteCPF(cliente.CPF))
                 throw new ArgumentException("CPF já cadastrado.");
 
@@ -29,7 +31,8 @@ namespace FI.AtividadeEntrevista.BLL
         /// <param name="cliente">Objeto de cliente</param>
         public void Alterar(DML.Cliente cliente)
         {
-            ValidarCPF(cliente.CPF);
+            // Normaliza e valida CPF
+            cliente.CPF = ValidarCPF(cliente.CPF);
             if (_dao.ExisteCPFOutro(cliente.CPF, cliente.Id))
                 throw new ArgumentException("CPF já cadastrado para outro cliente.");
 
@@ -87,36 +90,10 @@ namespace FI.AtividadeEntrevista.BLL
             return cli.VerificarExistencia(CPF);
         }
 
-        private void ValidarCPF(string cpf)
+        private string ValidarCPF(string cpf)
         {
-            if (string.IsNullOrWhiteSpace(cpf))
-                throw new ArgumentException("CPF é obrigatório.");
-
-            var apenasDigitos = new string(cpf.Where(char.IsDigit).ToArray());
-            if (!CpfValido(apenasDigitos))
-                throw new ArgumentException("CPF inválido.");
-
-        }
-
-        private bool CpfValido(string digits)
-        {
-            if (digits?.Length != 11) return false;
-            if (new string(digits[0], 11) == digits) return false;
-
-            int[] mult1 = { 10, 9, 8, 7, 6, 5, 4, 3, 2 };
-            int[] mult2 = { 11, 10, 9, 8, 7, 6, 5, 4, 3, 2 };
-
-            int soma = 0;
-            for (int i = 0; i < 9; i++) soma += (digits[i] - '0') * mult1[i];
-            int resto = soma % 11;
-            int dv1 = resto < 2 ? 0 : 11 - resto;
-
-            soma = 0;
-            for (int i = 0; i < 10; i++) soma += (digits[i] - '0') * mult2[i];
-            resto = soma % 11;
-            int dv2 = resto < 2 ? 0 : 11 - resto;
-
-            return digits[9] - '0' == dv1 && digits[10] - '0' == dv2;
+            CpfValidator.EnsureValidOrThrow(cpf, out var normalized, "CPF");
+            return normalized;
         }
     }
 }
