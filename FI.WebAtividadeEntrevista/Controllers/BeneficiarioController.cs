@@ -1,6 +1,8 @@
 ﻿using FI.AtividadeEntrevista.BLL;
 using FI.AtividadeEntrevista.DML;
 using FI.WebAtividadeEntrevista.Models;
+using FI.WebAtividadeEntrevista.Service;
+using FI.WebAtividadeEntrevista.Service.Interface;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,29 +13,29 @@ namespace FI.WebAtividadeEntrevista.Controllers
 {
     public class BeneficiarioController : Controller
     {
-        private readonly BoBeneficiario bo = new BoBeneficiario();
+        private readonly IBeneficiarioService _service;
+
+        public BeneficiarioController()
+            : this(new BeneficiarioService(new BoBeneficiario()))
+        {
+        }
+
+        public BeneficiarioController(IBeneficiarioService service)
+        {
+            _service = service;
+        }
 
         [HttpGet]
         public PartialViewResult Modal(long? idCliente)
         {
             ViewBag.IdCliente = idCliente ?? 0;
-
-            // Ajuste o caminho caso sua partial esteja em outro local
             return PartialView("~/Views/Cliente/Beneficiario/_PartialBeneficiario.cshtml", ViewBag.IdCliente);
         }
 
         [HttpGet]
         public JsonResult Listar(long idCliente)
         {
-            var lista = bo.ListarPorCliente(idCliente)
-                          .Select(x => new
-                          {
-                              x.Id,
-                              CPF = FormatarCpf(x.CPF),
-                              x.Nome,
-                              x.IdCliente
-                          });
-
+            var lista = _service.Listar(idCliente);
             return Json(new { Result = "OK", Records = lista }, JsonRequestBehavior.AllowGet);
         }
 
@@ -42,14 +44,8 @@ namespace FI.WebAtividadeEntrevista.Controllers
         {
             try
             {
-                var id = bo.Incluir(new Beneficiario
-                {
-                    CPF = model.CPF,
-                    Nome = model.Nome,
-                    IdCliente = model.IdCliente
-                });
-
-                return Json(new { Result = "OK", Record = new { Id = id, CPF = FormatarCpf(model.CPF), model.Nome, model.IdCliente } });
+                var criado = _service.Incluir(model);
+                return Json(new { Result = "OK", Record = new { criado.Id, criado.CPF, criado.Nome, criado.IdCliente } });
             }
             catch (Exception ex)
             {
@@ -63,13 +59,7 @@ namespace FI.WebAtividadeEntrevista.Controllers
         {
             try
             {
-                bo.Alterar(new Beneficiario
-                {
-                    Id = model.Id,
-                    CPF = model.CPF,
-                    Nome = model.Nome,
-                    IdCliente = model.IdCliente
-                });
+                _service.Alterar(model);
                 return Json(new { Result = "OK" });
             }
             catch (Exception ex)
@@ -84,7 +74,7 @@ namespace FI.WebAtividadeEntrevista.Controllers
         {
             try
             {
-                bo.Excluir(id);
+                _service.Excluir(id);
                 return Json(new { Result = "OK" });
             }
             catch (Exception ex)
@@ -92,13 +82,6 @@ namespace FI.WebAtividadeEntrevista.Controllers
                 Response.StatusCode = 400;
                 return Json(new { Result = "ERROR", Message = ex.Message });
             }
-        }
-
-        private static string FormatarCpf(string cpf)
-        {
-            var d = new string((cpf ?? "").Where(char.IsDigit).ToArray());
-            if (d.Length != 11) return cpf ?? "";
-            return $"{d.Substring(0, 3)}.{d.Substring(3, 3)}.{d.Substring(6, 3)}-{d.Substring(9, 2)}";
         }
     }
 
