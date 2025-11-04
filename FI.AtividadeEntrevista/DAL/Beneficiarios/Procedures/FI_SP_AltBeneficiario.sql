@@ -1,0 +1,13 @@
+﻿CREATE PROC dbo.FI_SP_AltBeneficiario
+    @ID BIGINT,
+    @CPF CHAR(11),
+    @NOME VARCHAR(50)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    UPDATE dbo.BENEFICIARIOS
+       SET CPF = @CPF,
+           NOME = @NOME
+     WHERE ID = @ID;
+END
+GO
