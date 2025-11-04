@@ -1,36 +1,49 @@
-﻿
-$(document).ready(function () {
+﻿$(document).ready(function () {
     $('#formCadastro').submit(function (e) {
         e.preventDefault();
+
+        var $form = $(this);
+
+        // Normaliza campos com máscara
+        var dados = {
+            "Nome": $form.find("#Nome").val(),
+            "Sobrenome": $form.find("#Sobrenome").val(),
+            "CPF": $form.find("#CPF").val().replace(/\D/g, ''),         
+            "Nacionalidade": $form.find("#Nacionalidade").val(),
+            "CEP": $form.find("#CEP").val().replace(/\D/g, ''),          
+            "Estado": $form.find("#Estado").val(),
+            "Cidade": $form.find("#Cidade").val(),
+            "Logradouro": $form.find("#Logradouro").val(),
+            "Email": $form.find("#Email").val(),
+            "Telefone": $form.find("#Telefone").val().replace(/\D/g, '')  // opcional
+        };
+
+        // Anti-forgery (se a ação usar [ValidateAntiForgeryToken])
+        var token = $form.find('input[name="__RequestVerificationToken"]').val();
+        if (token) {
+            dados.__RequestVerificationToken = token;
+        }
+
         $.ajax({
-            url: urlPost,
+            url: window.urlPost || '/Cliente/Adicionar',
             method: "POST",
-            data: {
-                "NOME": $(this).find("#Nome").val(),
-                "CEP": $(this).find("#CEP").val(),
-                "Email": $(this).find("#Email").val(),
-                "Sobrenome": $(this).find("#Sobrenome").val(),
-                "Nacionalidade": $(this).find("#Nacionalidade").val(),
-                "Estado": $(this).find("#Estado").val(),
-                "Cidade": $(this).find("#Cidade").val(),
-                "Logradouro": $(this).find("#Logradouro").val(),
-                "Telefone": $(this).find("#Telefone").val()
-            },
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify(dados),
+            headers: token ? { 'RequestVerificationToken': token } : {},
             error:
-            function (r) {
-                if (r.status == 400)
-                    ModalDialog("Ocorreu um erro", r.responseJSON);
-                else if (r.status == 500)
-                    ModalDialog("Ocorreu um erro", "Ocorreu um erro interno no servidor.");
-            },
+                function (r) {
+                    if (r.status == 400)
+                        ModalDialog("Ocorreu um erro", r.responseJSON);
+                    else if (r.status == 500)
+                        ModalDialog("Ocorreu un erro", "Ocorreu um erro interno no servidor.");
+                },
             success:
-            function (r) {
-                ModalDialog("Sucesso!", r)
-                $("#formCadastro")[0].reset();
-            }
+                function (r) {
+                    ModalDialog("Sucesso!", r)
+                    $("#formCadastro")[0].reset();
+                }
         });
     })
-    
 })
 
 function ModalDialog(titulo, texto) {
