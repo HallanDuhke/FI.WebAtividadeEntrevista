@@ -1,0 +1,31 @@
+﻿<div id="modalBeneficiarios" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="beneficiariosLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Fechar"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="beneficiariosLabel">Beneficiários</h4>
+            </div>
+
+            <div class="modal-body">
+                <div class="row" style="margin-bottom:10px">
+                    <div class="col-sm-5">
+                        <label>CPF:</label>
+                        <input id="benCpf" type="text" class="form-control" placeholder="Ex.: 010.011.111-00" />
+                    </div>
+                    <div class="col-sm-5">
+                        <label>Nome:</label>
+                        <input id="benNome" type="text" class="form-control" placeholder="Ex.: Maria" />
+                    </div>
+                    <div class="col-sm-2">
+                        <label>&nbsp;</label>
+                        <button id="btnIncluirBeneficiario" type="button" class="btn btn-success btn-block">Incluir</button>
+                    </div>
+                </div>
+
+                <div id="gridBeneficiarios"></div>
+            </div>
+
+        </div>
+    </div>
+</div>

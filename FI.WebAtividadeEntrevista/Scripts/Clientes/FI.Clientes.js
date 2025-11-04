@@ -4,7 +4,6 @@
 
         var $form = $(this);
 
-        // Normaliza campos com máscara
         var dados = {
             "Nome": $form.find("#Nome").val(),
             "Sobrenome": $form.find("#Sobrenome").val(),
@@ -18,7 +17,6 @@
             "Telefone": $form.find("#Telefone").val().replace(/\D/g, '')  // opcional
         };
 
-        // Anti-forgery (se a ação usar [ValidateAntiForgeryToken])
         var token = $form.find('input[name="__RequestVerificationToken"]').val();
         if (token) {
             dados.__RequestVerificationToken = token;

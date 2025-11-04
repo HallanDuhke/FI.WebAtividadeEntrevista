@@ -16,6 +16,11 @@ namespace WebAtividadeEntrevista.Controllers
             return View();
         }
 
+        [HttpGet]
+        public ActionResult Forms()
+        {
+            return View();
+        }
 
         public ActionResult Incluir()
         {

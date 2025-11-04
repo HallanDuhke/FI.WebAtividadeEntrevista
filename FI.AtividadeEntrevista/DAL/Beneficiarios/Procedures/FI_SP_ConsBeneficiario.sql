@@ -1,0 +1,10 @@
+﻿CREATE PROC dbo.FI_SP_ConsBeneficiario
+    @ID BIGINT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT ID, CPF, NOME, IDCLIENTE
+      FROM dbo.BENEFICIARIOS
+     WHERE ID = @ID;
+END
+GO
