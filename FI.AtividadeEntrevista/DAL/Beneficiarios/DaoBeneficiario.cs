@@ -8,8 +8,15 @@ using System.Threading.Tasks;
 
 namespace FI.AtividadeEntrevista.DAL.Beneficiarios
 {
+    /// <summary>
+    /// Classe de acesso a dados de Beneficiario
+    /// </summary>
     internal class DaoBeneficiario : AcessoDados
     {
+        /// <summary>
+        /// Inclui um novo Beneficiário
+        /// </summary>
+        /// <param name="cliente">Objeto de cliente</param>
         internal long Incluir(Beneficiario item)
         {
             var parametros = new List<System.Data.SqlClient.SqlParameter>
