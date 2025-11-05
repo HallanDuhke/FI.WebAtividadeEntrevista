@@ -51,6 +51,7 @@ namespace FI.WebAtividadeEntrevista.Controllers
                 return Json(new
                 {
                     Result = "OK",
+                    Message = "Cliente incluído com sucesso.",
                     Record = new
                     {
                         criado.Id,

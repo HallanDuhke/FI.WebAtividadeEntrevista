@@ -25,7 +25,7 @@ namespace FI.WebAtividadeEntrevista.App_Start
             {
                 filterContext.Result = new JsonResult
                 {
-                    Data = new { success = false, message },
+                    Data = new { Result = "ERROR", Message = message },
                     JsonRequestBehavior = JsonRequestBehavior.AllowGet
                 };
                 http.Response.StatusCode = (int)status;
