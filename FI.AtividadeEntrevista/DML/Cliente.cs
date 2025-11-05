@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace FI.AtividadeEntrevista.DML
 {
     /// <summary>
-    /// Classe de cliente que representa o registo na tabela Cliente do Banco de Dados
+    /// Classe de cliente que representa o registro na tabela Clientes do Banco de Dados
     /// </summary>
     public class Cliente
     {
@@ -20,6 +20,11 @@ namespace FI.AtividadeEntrevista.DML
         /// CEP
         /// </summary>
         public string CEP { get; set; }
+
+        /// <summary>
+        /// CPF
+        /// </summary>
+        public string CPF { get; set; }
 
         /// <summary>
         /// Cidade

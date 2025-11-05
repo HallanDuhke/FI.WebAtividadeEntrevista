@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FI.AtividadeEntrevista.BLL.Validators;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,14 +9,20 @@ namespace FI.AtividadeEntrevista.BLL
 {
     public class BoCliente
     {
+        private readonly DAL.DaoCliente _dao = new DAL.DaoCliente();
+
         /// <summary>
         /// Inclui um novo cliente
         /// </summary>
         /// <param name="cliente">Objeto de cliente</param>
         public long Incluir(DML.Cliente cliente)
         {
-            DAL.DaoCliente cli = new DAL.DaoCliente();
-            return cli.Incluir(cliente);
+            // Normaliza e valida CPF
+            cliente.CPF = ValidarCPF(cliente.CPF);
+            if (_dao.ExisteCPF(cliente.CPF))
+                throw new ArgumentException("CPF já cadastrado.");
+
+            return _dao.Incluir(cliente);
         }
 
         /// <summary>
@@ -24,8 +31,12 @@ namespace FI.AtividadeEntrevista.BLL
         /// <param name="cliente">Objeto de cliente</param>
         public void Alterar(DML.Cliente cliente)
         {
-            DAL.DaoCliente cli = new DAL.DaoCliente();
-            cli.Alterar(cliente);
+            // Normaliza e valida CPF
+            cliente.CPF = ValidarCPF(cliente.CPF);
+            if (_dao.ExisteCPFOutro(cliente.CPF, cliente.Id))
+                throw new ArgumentException("CPF já cadastrado para outro cliente.");
+
+            _dao.Alterar(cliente);
         }
 
         /// <summary>
@@ -77,6 +88,12 @@ namespace FI.AtividadeEntrevista.BLL
         {
             DAL.DaoCliente cli = new DAL.DaoCliente();
             return cli.VerificarExistencia(CPF);
+        }
+
+        private string ValidarCPF(string cpf)
+        {
+            CpfValidator.EnsureValidOrThrow(cpf, out var normalized, "CPF");
+            return normalized;
         }
     }
 }

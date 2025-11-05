@@ -1,41 +1,71 @@
-﻿
-$(document).ready(function () {
+﻿$(document).ready(function () {
     $('#formCadastro').submit(function (e) {
         e.preventDefault();
+
+        var $form = $(this);
+
+        var dados = {
+            "Nome": $form.find("#Nome").val(),
+            "Sobrenome": $form.find("#Sobrenome").val(),
+            "CPF": $form.find("#CPF").val().replace(/\D/g, ''),         
+            "Nacionalidade": $form.find("#Nacionalidade").val(),
+            "CEP": $form.find("#CEP").val().replace(/\D/g, ''),          
+            "Estado": $form.find("#Estado").val(),
+            "Cidade": $form.find("#Cidade").val(),
+            "Logradouro": $form.find("#Logradouro").val(),
+            "Email": $form.find("#Email").val(),
+            "Telefone": $form.find("#Telefone").val().replace(/\D/g, '')  
+        };
+
+        var token = $form.find('input[name="__RequestVerificationToken"]').val();
+        if (token) {
+            dados.__RequestVerificationToken = token;
+        }
+
         $.ajax({
-            url: urlPost,
+            url: window.urlPost || '/Cliente/Incluir', 
             method: "POST",
-            data: {
-                "NOME": $(this).find("#Nome").val(),
-                "CEP": $(this).find("#CEP").val(),
-                "Email": $(this).find("#Email").val(),
-                "Sobrenome": $(this).find("#Sobrenome").val(),
-                "Nacionalidade": $(this).find("#Nacionalidade").val(),
-                "Estado": $(this).find("#Estado").val(),
-                "Cidade": $(this).find("#Cidade").val(),
-                "Logradouro": $(this).find("#Logradouro").val(),
-                "Telefone": $(this).find("#Telefone").val()
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify(dados),
+            headers: token ? { 'RequestVerificationToken': token } : {},
+            error: function (r) {
+                if (r.responseJSON && r.responseJSON.Message) {
+                    ModalDialog("Ocorreu um erro", r.responseJSON.Message);
+                } else {
+                    ModalDialog("Ocorreu um erro", "Não foi possível processar sua solicitação.");
+                }
             },
-            error:
-            function (r) {
-                if (r.status == 400)
-                    ModalDialog("Ocorreu um erro", r.responseJSON);
-                else if (r.status == 500)
-                    ModalDialog("Ocorreu um erro", "Ocorreu um erro interno no servidor.");
-            },
-            success:
-            function (r) {
-                ModalDialog("Sucesso!", r)
-                $("#formCadastro")[0].reset();
+            success: function (response) {
+                if (response.Result === "OK" && response.Record && response.Record.Id) {
+                    var novoIdCliente = response.Record.Id;
+                    if (window.SalvarBeneficiariosAposCliente) {
+                        window.SalvarBeneficiariosAposCliente(novoIdCliente).done(function () {
+                            ModalDialog("Sucesso", "Cliente e beneficiários incluídos com sucesso!");
+                            $("#formCadastro")[0].reset();
+                        }).fail(function () {
+                            ModalDialog("Atenção", "O cliente foi incluído, mas houve um erro ao salvar os beneficiários.");
+                        });
+                    } else {
+                        ModalDialog("Sucesso", response.Message);
+                        $("#formCadastro")[0].reset();
+                    }
+                } else {
+                    ModalDialog("Sucesso", response.Message);
+                    $("#formCadastro")[0].reset();
+                }
             }
         });
     })
-    
 })
 
 function ModalDialog(titulo, texto) {
+    var textoExibicao = texto;
+    if (typeof texto === 'object' && texto !== null) {
+        textoExibicao = texto.Message || texto.statusText || JSON.stringify(texto);
+    }
+
     var random = Math.random().toString().replace('.', '');
-    var texto = '<div id="' + random + '" class="modal fade">                                                               ' +
+    var html = '<div id="' + random + '" class="modal fade">                                                               ' +
         '        <div class="modal-dialog">                                                                                 ' +
         '            <div class="modal-content">                                                                            ' +
         '                <div class="modal-header">                                                                         ' +
@@ -43,16 +73,15 @@ function ModalDialog(titulo, texto) {
         '                    <h4 class="modal-title">' + titulo + '</h4>                                                    ' +
         '                </div>                                                                                             ' +
         '                <div class="modal-body">                                                                           ' +
-        '                    <p>' + texto + '</p>                                                                           ' +
+        '                    <p>' + textoExibicao + '</p>                                                                    ' +
         '                </div>                                                                                             ' +
         '                <div class="modal-footer">                                                                         ' +
         '                    <button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>             ' +
-        '                                                                                                                   ' +
         '                </div>                                                                                             ' +
         '            </div><!-- /.modal-content -->                                                                         ' +
         '  </div><!-- /.modal-dialog -->                                                                                    ' +
         '</div> <!-- /.modal -->                                                                                        ';
 
-    $('body').append(texto);
+    $('body').append(html);
     $('#' + random).modal('show');
 }
