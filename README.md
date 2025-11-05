@@ -115,6 +115,36 @@ Aplicação ASP.NET MVC (.NET Framework 4.8) com projeto Web e projeto de lógic
 - Scripts modulares por contexto (Clientes, Beneficiários, Máscaras).
 - Internacionalização do jTable (pt-BR) e tema consistente via bundle CSS.
 
+## Boas Práticas de Git
+
+- Estrutura de branches (GitFlow):
+  - main: produção (apenas merges de release/hotfix).
+  - develop: integração contínua.
+  - feature/nome-da-feature: desenvolvimento de funcionalidades.
+  - release/vX.Y: estabilização para publicação (ex.: release/v1).
+  - hotfix/vX.Y.Z: correções emergenciais a partir da main.
+- Fluxo de release (ex.: v1):
+  - Criar branch release a partir da develop, ajustar docs/metadados.
+  - Merge na main com --no-ff, criar tag anotada v1.0.0, back-merge na develop.
+  - Remover a branch release após publicação.
+  
+Exemplo de publicação da v1:
+```bash
+git checkout develop && git pull
+git checkout -b release/v1
+# ajustes finais (README, versões, etc.)
+git commit -m "docs(readme): atualizar para v1"
+git checkout main && git pull
+git merge --no-ff release/v1
+git tag -a v1.0.0 -m "v1.0.0"
+git push origin main --tags
+git checkout develop
+git merge --no-ff release/v1
+git push origin develop
+git branch -d release/v1
+git push origin :release/v1
+```
+
 ## Dependências Principais (NuGet)
 
 - ASP.NET MVC 5.2.9, WebPages/Razor 3.2.9
