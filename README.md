@@ -6,6 +6,20 @@ Aplicação ASP.NET MVC (.NET Framework 4.8) com projeto Web e projeto de lógic
 - Web: [FI.WebAtividadeEntrevista/FI.WebAtividadeEntrevista.csproj](FI.WebAtividadeEntrevista/FI.WebAtividadeEntrevista.csproj)
 - Lib: [FI.AtividadeEntrevista/FI.AtividadeEntrevista.csproj](FI.AtividadeEntrevista/FI.AtividadeEntrevista.csproj)
 
+## Como Rodar
+
+1. Restaurar pacotes NuGet
+   - VS: Restore NuGet Packages na solução.
+   - CLI: `nuget restore FI.WebAtividadeEntrevista.sln`.
+2. Confirmar connectionString
+   - Em [FI.WebAtividadeEntrevista/Web.config](FI.WebAtividadeEntrevista/Web.config), nome `BancoDeDados`, apontando para `App_Data\BancoDeDados.mdf`.
+3. Buildar a solução
+   - VS: Build na solução.
+   - CLI (MSBuild): `msbuild FI.WebAtividadeEntrevista.sln /p:Configuration=Debug`.
+4. Executar
+   - VS: IIS Express (HTTPS padrão configurado em [`FI.WebAtividadeEntrevista.csproj`](FI.WebAtividadeEntrevista/FI.WebAtividadeEntrevista.csproj), porta SSL 44333).
+   - Navegar para a raiz (Home) e acessar o menu Clientes.
+
 ## Arquitetura e Camadas
 
 - Apresentação (ASP.NET MVC)
@@ -84,20 +98,6 @@ Aplicação ASP.NET MVC (.NET Framework 4.8) com projeto Web e projeto de lógic
 - .NET Framework 4.8
 - SQL Server LocalDB (MSSQLLocalDB)
 - IIS Express (fornecido pelo VS)
-
-## Como Rodar
-
-1. Restaurar pacotes NuGet
-   - VS: Restore NuGet Packages na solução.
-   - CLI: `nuget restore FI.WebAtividadeEntrevista.sln`.
-2. Confirmar connectionString
-   - Em [FI.WebAtividadeEntrevista/Web.config](FI.WebAtividadeEntrevista/Web.config), nome `BancoDeDados`, apontando para `App_Data\BancoDeDados.mdf`.
-3. Buildar a solução
-   - VS: Build na solução.
-   - CLI (MSBuild): `msbuild FI.WebAtividadeEntrevista.sln /p:Configuration=Debug`.
-4. Executar
-   - VS: IIS Express (HTTPS padrão configurado em [`FI.WebAtividadeEntrevista.csproj`](FI.WebAtividadeEntrevista/FI.WebAtividadeEntrevista.csproj), porta SSL 44333).
-   - Navegar para a raiz (Home) e acessar o menu Clientes.
 
 ## Principais Telas/Fluxos
 
